@@ -1,0 +1,2609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth - Login & Register</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-container">
+            <div class="loading-logo">
+                <img src="exauth logo.png" alt="EX Auth Logo" class="logo-image">
+            </div>
+            <div class="loading-spinner">
+                <div class="loader-wrapper">
+                    <div class="loader"></div>
+                    <div class="loader-letter">E</div>
+                    <div class="loader-letter">X</div>
+                    <div class="loader-letter">A</div>
+                    <div class="loader-letter">U</div>
+                    <div class="loader-letter">T</div>
+                    <div class="loader-letter">H</div>
+                </div>
+            </div>
+            <div class="loading-text">
+                <p>Loading your dashboard...</p>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p class="progress-text">Loading credentials...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box">
+        <!-- Login Form -->
+        <form class="login-form" id="loginForm">
+            <div class="login-header">
+                <i class="fas fa-arrow-right-to-bracket"></i>
+                <h2 id="formTitle">LOGIN</h2>
+                <i class="fas fa-heart"></i>
+            </div>
+
+            <div class="form-content">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                    <label for="email">Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <label for="password">Password</label>
+                    <i class="fas fa-eye password-toggle" id="passwordToggle"></i>
+                </div>
+                <button type="submit" class="btn-signin" id="submitBtn">
+                    <span id="btnText">Sign In</span>
+                    <i class="fas fa-spinner fa-spin" id="loadingSpinner" style="display: none;"></i>
+                </button>
+                
+                <div class="form-footer">
+                    <a href="#" class="forgot-password" id="forgotPassword">Forgot Password</a>
+                    <a href="#" class="signup" id="toggleForm">Sign up</a>
+                </div>
+                <div id="message" class="message"></div>
+            </div>
+        </form>
+
+        <!-- Registration Form (initially hidden) -->
+        <form class="login-form" id="registerForm" style="display: none;">
+            <div class="login-header">
+                <i class="fas fa-user-plus"></i>
+                <h2 id="registerTitle">REGISTER</h2>
+                <i class="fas fa-heart"></i>
+    </div>
+
+            <div class="form-content">
+                <div class="input-group">
+                    <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                    <label for="registerEmail">Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="registerPassword" placeholder="Enter your password" required>
+                    <label for="registerPassword">Password</label>
+                    <i class="fas fa-eye password-toggle" id="registerPasswordToggle"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                    <label for="confirmPassword">Confirm Password</label>
+                    <i class="fas fa-eye password-toggle" id="confirmPasswordToggle"></i>
+                </div>
+                <button type="submit" class="btn-signin" id="registerBtn">
+                    <span id="registerBtnText">Create Account</span>
+                    <i class="fas fa-spinner fa-spin" id="registerSpinner" style="display: none;"></i>
+                </button>
+                
+                <div class="form-footer">
+                    <a href="#" class="signin" id="backToLogin">Already have an account? Sign in</a>
+                </div>
+                <div id="registerMessage" class="message"></div>
+            </div>
+        </form>
+
+        <!-- Dashboard View (initially hidden) -->
+        <div id="dashboardView" class="dashboard-screen" style="display: none;">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <img src="exauth logo.png" alt="EX Auth Logo" class="logo-image">
+                </div>
+                
+                <!-- User Profile Card -->
+                <div class="user-profile-card">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <div class="username" id="userEmail">user@example.com</div>
+                        <div class="expiry">Expires: Never</div>
+                    </div>
+                    <div class="plan-badge">TESTER PLAN</div>
+                    <div class="profile-menu">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+
+                <!-- Navigation Categories -->
+                <div class="nav-categories">
+                    <!-- App Category -->
+                    <div class="nav-category">
+                        <div class="category-header active" data-category="app">
+                            <span>App</span>
+                        </div>
+                        <div class="nav-items" id="app-nav">
+                            <div class="nav-item active" onclick="switchTab('appManageTab')">
+                                <i class="fas fa-cog"></i>
+                                <span>App Manage</span>
+                            </div>
+                            <div class="nav-item" onclick="switchTab('licenceTab')">
+                                <i class="fas fa-key"></i>
+                                <span>Licenses</span>
+                            </div>
+                            <div class="nav-item" onclick="switchTab('userTab')">
+                                <i class="fas fa-users"></i>
+                                <span>Users</span>
+                            </div>
+                            <div class="nav-item" onclick="switchTab('settingTab')">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Category -->
+                    <div class="nav-category">
+                        <div class="category-header" data-category="account">
+                            <span>Account</span>
+                        </div>
+                        <div class="nav-items" id="account-nav" style="display: none;">
+                            <div class="nav-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <div class="header-title">
+                        <h1>Dashboard</h1>
+                        <p>Manage your application, users, and licenses</p>
+                    </div>
+                </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- App Manage Tab -->
+                <div id="appManageTab" class="tab-panel active">
+                    <div class="credentials-section">
+                        <h3>API Credentials</h3>
+                        
+                        <!-- Language Tabs -->
+                        <div class="language-tabs">
+                            <div class="language-tab active" data-lang="csharp" onclick="switchLanguageTab('csharp')">C#</div>
+                            <div class="language-tab" data-lang="cpp" onclick="switchLanguageTab('cpp')">C++</div>
+                            <div class="language-tab" data-lang="python" onclick="switchLanguageTab('python')">Python</div>
+                        </div>
+                        
+                        <!-- C# Credentials -->
+                        <div class="card" id="csharp-credentials">
+                            <div class="wrap">
+                                <div class="terminal">
+                                    <div class="head">
+                                        <div class="title">
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Credentials
+                                        </div>
+                                        <button class="copy_toggle" onclick="copyCredentials()">
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" stroke="currentColor" stroke-width="2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="body">
+                                        <div class="pre">
+                                            <code>public static api emon_xiter = new api {</code>
+                                        </div>
+                                        <div class="pre">
+                                            <code>    name = "</code><code id="apiName">xxxx</code><code>", // App name</code>
+                                        </div>
+                                        <div class="pre">
+                                            <code>    ownerid = "</code><code id="apiOwnerId">xxxx</code><code>", // Account ID</code>
+                                        </div>
+                                        <div class="pre">
+                                            <code>    version = "</code><code id="apiVersion">1.0</code><code>", // App version</code>
+                                        </div>
+                                        <div class="pre">
+                                            <code>    api = "</code><code id="apiUrl">https://emon-xiter-auth-system.onrender.com</code><code>" // API URL</code>
+                                        </div>
+                                        <div class="pre">
+                                            <code>};</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- C++ Credentials (Coming Soon) -->
+                        <div class="card coming-soon-card" id="cpp-credentials" style="display: none;">
+                            <div class="wrap">
+                                <div class="terminal">
+                                    <div class="head">
+                                        <div class="title">
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            C++ Credentials
+                                        </div>
+                                    </div>
+                                    <div class="body">
+                                        <div class="coming-soon">
+                                            <h4>Coming Soon!</h4>
+                                            <p>C++ credentials will be available in a future update.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Python Credentials (Coming Soon) -->
+                        <div class="card coming-soon-card" id="python-credentials" style="display: none;">
+                            <div class="wrap">
+                                <div class="terminal">
+                                    <div class="head">
+                                        <div class="title">
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Python Credentials
+                                        </div>
+                                    </div>
+                                    <div class="body">
+                                        <div class="coming-soon">
+                                            <h4>Coming Soon!</h4>
+                                            <p>Python credentials will be available in a future update.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Tab -->
+                <div id="userTab" class="tab-panel">
+                    <div class="action-buttons">
+                        <button class="action-btn blue-btn" onclick="showCreateUserModal()">
+                            <i class="fas fa-user-plus"></i> Create User
+                        </button>
+                    </div>
+                    
+                    <div class="user-controls">
+                        <div class="show-selector">
+                            <label>Show:</label>
+                            <select id="userShowSelect">
+                                <option value="all">All Users</option>
+                                <option value="banned">Banned</option>
+                                <option value="unbanned">Unbanned</option>
+                            </select>
+                        </div>
+                        <div class="search-box">
+                            <input type="text" id="userSearch" placeholder="Search users...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+
+                    <div class="users-table-container">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Username <i class="fas fa-sort"></i></th>
+                                    <th>HWID <i class="fas fa-sort"></i></th>
+                                    <th>IP <i class="fas fa-sort"></i></th>
+                                    <th>Creation Date <i class="fas fa-sort"></i></th>
+                                    <th>Last Login Date <i class="fas fa-sort"></i></th>
+                                    <th>Banned? <i class="fas fa-sort"></i></th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr class="no-data">
+                                    <td colspan="7">No records found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-footer">
+                        <div class="table-info">
+                            <span id="userRecordCount">Showing 0 to 0 of 0 records</span>
+                        </div>
+                        <div class="pagination">
+                            <button class="page-btn" id="prevPage" disabled>Previous</button>
+                            <span class="page-numbers" id="pageNumbers"></span>
+                            <button class="page-btn" id="nextPage" disabled>Next</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-note">
+                        <span style="color: #ff6b6b;">Dropdown actions in RED</span> do not show a confirmation! 
+                        <span style="color: #45f3ff;">Dropdown actions in BLUE</span> will show a confirmation!
+                    </div>
+                </div>
+
+                <!-- Licence Tab -->
+                <div id="licenceTab" class="tab-panel">
+                    <div class="license-actions">
+                        <div class="action-group blue-actions">
+                            <button class="action-btn blue-btn" onclick="showCreateLicenseModal()">
+                                <i class="fas fa-plus"></i> Create License
+                            </button>
+                        </div>
+                        <div class="action-group red-actions">
+                            <button class="action-btn red-btn" onclick="deleteAllLicenses()">
+                                <i class="fas fa-trash"></i> Delete All
+                            </button>
+                            <button class="action-btn red-btn" onclick="deleteUsedLicenses()">
+                                <i class="fas fa-ban"></i> Delete Used
+                            </button>
+                            <button class="action-btn red-btn" onclick="deleteUnusedLicenses()">
+                                <i class="fas fa-times"></i> Delete Unused
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="license-controls">
+                        <div class="show-selector">
+                            <label>Show:</label>
+                            <select id="licenseShowSelect">
+                                <option value="all">All Licenses</option>
+                                <option value="used">Used</option>
+                                <option value="not-used">Not Used</option>
+                            </select>
+                        </div>
+                        <div class="search-box">
+                            <input type="text" id="licenseSearch" placeholder="Search licenses...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+
+                    <div class="licenses-table-container">
+                        <table class="licenses-table">
+                            <thead>
+                                <tr>
+                                    <th>License <i class="fas fa-sort"></i></th>
+                                    <th>Creation Date <i class="fas fa-sort"></i></th>
+                                    <th>Generated By <i class="fas fa-sort"></i></th>
+                                    <th>Duration <i class="fas fa-sort"></i></th>
+                                    <th>Note <i class="fas fa-sort"></i></th>
+                                    <th>Used On <i class="fas fa-sort"></i></th>
+                                    <th>Used By <i class="fas fa-sort"></i></th>
+                                    <th>Status <i class="fas fa-sort"></i></th>
+                                    <th>Actions <i class="fas fa-sort"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody id="licensesTableBody">
+                                <tr class="no-data">
+                                    <td colspan="9">No records found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-footer">
+                        <div class="table-info">
+                            <span id="licenseRecordCount">Showing 0 to 0 of 0 records</span>
+                        </div>
+                        <div class="pagination">
+                            <button class="page-btn" id="prevLicensePage" disabled>Previous</button>
+                            <span class="page-numbers" id="licensePageNumbers"></span>
+                            <button class="page-btn" id="nextLicensePage" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Setting Tab -->
+                <div id="settingTab" class="tab-panel">
+                    <div class="settings-container">
+                        <div class="settings-section">
+                            <h3>Application Settings</h3>
+                            <div class="settings-field">
+                                <label>Application Version</label>
+                                <div class="version-display">
+                                    <input type="text" id="appVersion" placeholder="Loading...">
+                                    <button class="btn-update" onclick="updateVersion()">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3>Security Settings</h3>
+                            <div class="settings-field">
+                                <label>VPN Block</label>
+                                <div class="dropdown-container">
+                                    <select id="vpnBlock" class="settings-dropdown" onchange="updateVpnBlock(this.value)">
+                                        <option value="disabled">Disabled</option>
+                                        <option value="enabled">Enabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="settings-field">
+                                <label>HWID Lock</label>
+                                <div class="dropdown-container">
+                                    <select id="hwidLock" class="settings-dropdown" onchange="updateHwidLock(this.value)">
+                                        <option value="disabled">Disabled</option>
+                                        <option value="enabled">Enabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div> <!-- Close main-content -->
+        </div>
+
+        <!-- Create User Modal -->
+        <div id="createUserModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Create User</h3>
+                    <button class="close-btn" onclick="hideCreateUserModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="create-user-form" id="createUserForm">
+                        <div class="form-group">
+                            <label for="newUsername">Username</label>
+                            <input type="text" id="newUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Password</label>
+                            <input type="password" id="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newEmail">Email <span style="color: #666; font-size: 12px;">(Optional)</span></label>
+                            <input type="email" id="newEmail" placeholder="Enter email (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label for="newSubscription">Subscription</label>
+                            <select id="newSubscription">
+                                <option value="default">default</option>
+                                <option value="premium">premium</option>
+                                <option value="basic">basic</option>
+                                <option value="pro">pro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newExpiry">Expiration</label>
+                            <div class="date-input-group">
+                                <i class="fas fa-calendar-alt"></i>
+                                <input type="datetime-local" id="newExpiry" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newHwidLock">HWID Lock</label>
+                            <div class="dropdown-container">
+                                <select id="newHwidLock" class="settings-dropdown">
+                                    <option value="disabled">Disabled</option>
+                                    <option value="enabled">Enabled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" onclick="hideCreateUserModal()">Cancel</button>
+                            <button type="submit" class="btn-add-user">Add User</button>
+                        </div>
+                    </form>
+                </div>
+                </div>
+        </div>
+
+        <!-- Create License Modal -->
+        <div id="createLicenseModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Create New License</h3>
+                    <button class="close-btn" onclick="hideCreateLicenseModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="create-license-form" id="createLicenseForm">
+                        <div class="form-group">
+                            <label for="licenseAmount">Amount</label>
+                            <input type="number" id="licenseAmount" value="1" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="licenseCharType">Character Type</label>
+                            <select id="licenseCharType">
+                                <option value="mixed">Mixed (A-Z, a-z, 0-9)</option>
+                                <option value="uppercase">Uppercase Only</option>
+                                <option value="lowercase">Lowercase Only</option>
+                                <option value="numbers">Numbers Only</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="licenseExpiryUnit">Expiry Unit</label>
+                            <select id="licenseExpiryUnit">
+                                <option value="days">Days</option>
+                                <option value="weeks">Weeks</option>
+                                <option value="months">Months</option>
+                                <option value="years">Years</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="licenseDuration">Duration</label>
+                            <input type="number" id="licenseDuration" value="30" min="1">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" onclick="hideCreateLicenseModal()">Cancel</button>
+                            <button type="submit" class="btn-add-user">Generate Licenses</button>
+            </div>
+        </form>
+    </div>
+            </div>
+        </div>
+
+        <!-- Professional Notification -->
+        <div id="notification" class="notification" style="display: none;">
+            <div class="notification-content">
+                <div class="notification-body">
+                    <div class="notification-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="notification-text">
+                        <h4 id="notificationTitle">Success</h4>
+                        <p id="notificationMessage">Operation completed successfully!</p>
+                    </div>
+                    <button class="notification-close" onclick="hideNotification()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions Popup Modal -->
+        <div id="actionsPopup" class="actions-popup-overlay" style="display: none;">
+            <div class="actions-popup-content">
+                <div class="actions-popup-header">
+                    <h3 id="actionsPopupTitle">User Actions</h3>
+                    <button class="actions-popup-close" onclick="hideActionsPopup()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="actions-popup-body">
+                    <div class="actions-popup-info">
+                        <p id="actionsPopupInfo">Select an action for this user:</p>
+                    </div>
+                    <div class="actions-popup-buttons">
+                        <button class="action-btn delete-btn" id="popupDeleteUser">
+                            <i class="fas fa-trash"></i>
+                            Delete User
+                        </button>
+                        <button class="action-btn reset-btn" id="popupResetHWID">
+                            <i class="fas fa-refresh"></i>
+                            Reset HWID
+                        </button>
+                        <button class="action-btn ban-btn" id="popupBanUser">
+                            <i class="fas fa-ban"></i>
+                            Ban User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Confirmation Modal -->
+        <div id="confirmationModal" class="confirmation-overlay" style="display: none;">
+            <div class="confirmation-content">
+                <div class="confirmation-header">
+                    <h3>Confirm Action</h3>
+                </div>
+                <div class="confirmation-body">
+                    <p id="confirmationMessage">Are you sure you want to perform this action?</p>
+                </div>
+                <div class="confirmation-footer">
+                    <button class="btn-cancel-confirm" onclick="hideConfirmation()">Cancel</button>
+                    <button class="btn-confirm" id="confirmActionBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAA-RurFva1rgKTVV1GfnhtunxXmWIJvGI",
+            authDomain: "emon-xiter-s-auth.firebaseapp.com",
+            projectId: "emon-xiter-s-auth",
+            storageBucket: "emon-xiter-s-auth.firebasestorage.app",
+            messagingSenderId: "891458618793",
+            appId: "1:891458618793:web:f19497efaa71b8c61230b8",
+            measurementId: "G-GZC6X6B2DV",
+            databaseURL: "https://emon-xiter-s-auth-default-rtdb.firebaseio.com/"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        // Make auth available globally
+        window.auth = auth;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.sendPasswordResetEmail = sendPasswordResetEmail;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.API_BASE_URL = 'https://auth-mksu.onrender.com'; // Dashboard API URL
+        
+        // Signal that Firebase is ready
+        window.firebaseReady = true;
+        window.dispatchEvent(new Event('firebaseReady'));
+    </script>
+
+    <script>
+        // Test API connection
+        async function testAPIConnection() {
+            try {
+                console.log('🧪 Testing API connection...');
+                const response = await fetch(`${window.API_BASE_URL}/`);
+                const data = await response.json();
+                console.log('✅ API connection successful:', data);
+                showNotification('API connection successful!', true);
+                return true;
+            } catch (error) {
+                console.error('❌ API connection failed:', error);
+                showNotification('API connection failed: ' + error.message, false);
+                return false;
+            }
+        }
+
+        // Wait for DOM and Firebase
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM loaded');
+            
+            if (window.firebaseReady) {
+                initApp();
+                checkAuthState();
+            } else {
+                window.addEventListener('firebaseReady', () => {
+                    initApp();
+                    checkAuthState();
+                });
+            }
+        });
+        
+        // Check authentication state and show appropriate screen
+        function checkAuthState() {
+            console.log('🔍 Checking authentication state...');
+            
+            // Check if user is already logged in
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log('✅ User is already authenticated:', user.email);
+                    // Show loading screen and load dashboard
+                    showLoadingScreen();
+                    setTimeout(() => {
+                        loadCredentialsFromFirebase();
+                    }, 1000);
+                } else {
+                    console.log('❌ No authenticated user, showing login form');
+                    // Hide loading screen and show login form
+                    hideLoadingScreen();
+                    showLoginForm();
+                }
+            });
+        }
+
+        function initApp() {
+            console.log('🚀 Initializing app...');
+            
+            // Get elements
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const dashboardView = document.getElementById('dashboardView');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const registerEmailInput = document.getElementById('registerEmail');
+            const registerPasswordInput = document.getElementById('registerPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const messageDiv = document.getElementById('message');
+            const registerMessageDiv = document.getElementById('registerMessage');
+            const userEmailDiv = document.getElementById('userEmail');
+            const toggleForm = document.getElementById('toggleForm');
+            const backToLogin = document.getElementById('backToLogin');
+            const forgotPassword = document.getElementById('forgotPassword');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            console.log('🔍 Elements found:', {
+                loginForm: !!loginForm,
+                registerForm: !!registerForm,
+                emailInput: !!emailInput,
+                passwordInput: !!passwordInput
+            });
+
+            // Login form submission
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    console.log('📝 Login form submitted');
+                    e.preventDefault();
+                    handleLogin();
+                });
+            }
+
+            // Register form submission
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    console.log('📝 Register form submitted');
+                    e.preventDefault();
+                    handleRegister();
+                });
+            }
+
+            // Toggle between login and register
+            if (toggleForm) {
+                toggleForm.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('🔄 Switching to register');
+                    loginForm.style.display = 'none';
+                    registerForm.style.display = 'flex';
+                });
+            }
+
+            if (backToLogin) {
+                backToLogin.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('🔄 Switching to login');
+                    registerForm.style.display = 'none';
+                    loginForm.style.display = 'flex';
+                });
+            }
+
+            // Logout button
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    console.log('🚪 Logging out');
+                    handleLogout();
+                });
+            }
+
+            // Password toggle
+            const passwordToggles = document.querySelectorAll('.password-toggle');
+            passwordToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.classList.remove('fa-eye');
+                        this.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        this.classList.remove('fa-eye-slash');
+                        this.classList.add('fa-eye');
+                    }
+                });
+            });
+
+            // Create User form submission
+            const createUserForm = document.getElementById('createUserForm');
+            if (createUserForm) {
+                createUserForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('📝 Create User form submitted');
+                    handleCreateUser();
+                });
+            }
+
+            // Create License form submission
+            const createLicenseForm = document.getElementById('createLicenseForm');
+            if (createLicenseForm) {
+                createLicenseForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('📝 Create License form submitted');
+                    handleCreateLicense();
+                });
+            }
+
+            // Login function
+            async function handleLogin() {
+                console.log('🔐 Login attempt started');
+                
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                console.log('📧 Email:', email);
+                console.log('🔑 Password length:', password.length);
+
+                if (!email || !password) {
+                    showMessage('Please fill in all fields', 'error');
+                    return;
+                }
+
+                setLoading(true, 'login');
+
+                try {
+                    console.log('🚀 Attempting Firebase login...');
+                    const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
+                    console.log('✅ Login successful:', userCredential.user);
+                    showMessage('Login successful!', 'success');
+                    showDashboard(userCredential.user);
+                } catch (error) {
+                    console.error('❌ Login error:', error);
+                    showMessage(getErrorMessage(error.code), 'error');
+                } finally {
+                    setLoading(false, 'login');
+                }
+            }
+
+            // Register function
+            async function handleRegister() {
+                console.log('📝 Register attempt started');
+                
+                const email = registerEmailInput.value.trim();
+                const password = registerPasswordInput.value.trim();
+                const confirmPassword = confirmPasswordInput.value.trim();
+
+                if (!email || !password || !confirmPassword) {
+                    showRegisterMessage('Please fill in all fields', 'error');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showRegisterMessage('Passwords do not match', 'error');
+                    return;
+                }
+
+                if (password.length < 1) {
+                    showRegisterMessage('Password cannot be empty', 'error');
+                    return;
+                }
+
+                setLoading(true, 'register');
+
+                try {
+                    console.log('🚀 Attempting Firebase registration...');
+                    const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                    console.log('✅ Registration successful:', userCredential.user);
+                    showRegisterMessage('Account created successfully!', 'success');
+                    
+                    // Add user to database
+                    await addUserToDatabase(userCredential.user, email);
+                    
+                    // Switch to login form after successful registration
+                    setTimeout(() => {
+                        registerForm.style.display = 'none';
+                        loginForm.style.display = 'flex';
+                        clearMessages();
+                    }, 2000);
+                } catch (error) {
+                    console.error('❌ Registration error:', error);
+                    showRegisterMessage(getErrorMessage(error.code), 'error');
+                } finally {
+                    setLoading(false, 'register');
+                }
+            }
+
+            // Logout function
+            async function handleLogout() {
+                try {
+                    await window.signOut(window.auth);
+                    console.log('✅ Logout successful');
+                    showLoginForm();
+                } catch (error) {
+                    console.error('❌ Logout error:', error);
+                    showMessage('Error logging out', 'error');
+                }
+            }
+
+            // Add user to database
+            async function addUserToDatabase(user, email) {
+                try {
+                    console.log('💾 Adding user to database...');
+                    const response = await fetch(`${window.API_BASE_URL}/api/add-user`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            uid: user.uid
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        console.log('✅ User added to database:', result.data);
+                    } else {
+                        console.error('❌ Failed to add user to database:', result.error);
+                    }
+                } catch (error) {
+                    console.error('❌ Error adding user to database:', error);
+                }
+            }
+
+            // Show dashboard
+            function showDashboard(user) {
+                console.log('📊 Showing dashboard for:', user.email);
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'none';
+                dashboardView.style.display = 'flex';
+                userEmailDiv.textContent = user.email;
+                
+                // Load user data and initialize dashboard
+                console.log('🔄 Loading user data for dashboard...');
+                loadUserData(user.email);
+                
+                // Load user credentials for the admin
+                loadAllUsers(user.email);
+                
+                // Load licenses for the admin
+                loadAllLicenses(user.email);
+                
+                // Also try to load from Firebase Auth user data
+                if (user.displayName) {
+                    updateAppManageData({
+                        name: user.displayName,
+                        ownerid: user.uid.substring(0, 6),
+                        version: '1.0'
+                    });
+                }
+            }
+
+            // Show login form
+            function showLoginForm() {
+                console.log('🔐 Showing login form');
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+                dashboardView.style.display = 'none';
+                clearMessages();
+            }
+
+            // Set loading state
+            function setLoading(loading, form) {
+                if (form === 'login') {
+                    const spinner = document.getElementById('loadingSpinner');
+                    const btnText = document.getElementById('btnText');
+                    if (loading) {
+                        spinner.style.display = 'inline';
+                        btnText.textContent = 'Signing In...';
+                    } else {
+                        spinner.style.display = 'none';
+                        btnText.textContent = 'Sign In';
+                    }
+                } else if (form === 'register') {
+                    const spinner = document.getElementById('registerSpinner');
+                    const btnText = document.getElementById('registerBtnText');
+                    if (loading) {
+                        spinner.style.display = 'inline';
+                        btnText.textContent = 'Creating...';
+                    } else {
+                        spinner.style.display = 'none';
+                        btnText.textContent = 'Create Account';
+                    }
+                }
+            }
+
+            // Show message
+            function showMessage(message, type) {
+                messageDiv.textContent = message;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+            }
+
+            // Show register message
+            function showRegisterMessage(message, type) {
+                registerMessageDiv.textContent = message;
+                registerMessageDiv.className = `message ${type}`;
+                registerMessageDiv.style.display = 'block';
+            }
+
+            // Clear messages
+            function clearMessages() {
+                messageDiv.style.display = 'none';
+                registerMessageDiv.style.display = 'none';
+            }
+
+            // Get error message
+            function getErrorMessage(errorCode) {
+                switch (errorCode) {
+                    case 'auth/user-not-found':
+                        return 'No user found with this email';
+                    case 'auth/wrong-password':
+                        return 'Incorrect password';
+                    case 'auth/email-already-in-use':
+                        return 'Email already in use';
+                    case 'auth/weak-password':
+                        return 'Password is too weak';
+                    case 'auth/invalid-email':
+                        return 'Invalid email address';
+                    default:
+                        return 'An error occurred. Please try again.';
+                }
+            }
+
+            // Authentication state listener
+            window.onAuthStateChanged(window.auth, function(user) {
+                if (user) {
+                    console.log('👤 User signed in:', user.email);
+                    showDashboard(user);
+                } else {
+                    console.log('👤 User signed out');
+                    showLoginForm();
+                }
+            });
+
+            console.log('✅ App initialized successfully');
+        }
+
+        // Dashboard Functions
+        function switchTab(tabId) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-panel');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Update navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Load version when settings tab is shown
+            if (tabId === 'settingTab') {
+                loadCurrentVersion();
+                loadSettings();
+            }
+        }
+
+        // Category toggle functionality
+        function toggleCategory(category) {
+            const categoryHeader = document.querySelector(`[data-category="${category}"]`);
+            const navItems = document.getElementById(`${category}-nav`);
+            
+            if (navItems.style.display === 'none' || navItems.style.display === '') {
+                navItems.style.display = 'flex';
+                categoryHeader.classList.add('active');
+            } else {
+                navItems.style.display = 'none';
+                categoryHeader.classList.remove('active');
+            }
+        }
+
+        // Initialize category headers with click events
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryHeaders = document.querySelectorAll('.category-header');
+            categoryHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    toggleCategory(category);
+                });
+            });
+        });
+
+        function loadUserData(email) {
+            console.log('🔄 Loading user data for:', email);
+            fetch(`${window.API_BASE_URL}/api/get-user/${encodeURIComponent(email)}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('📊 User data response:', data);
+                    if (data.success) {
+                        updateAppManageData(data.data);
+                    } else {
+                        console.error('❌ Failed to load user data:', data.error);
+                        // Set default values if user not found
+                        updateAppManageData({
+                            name: 'xxxx',
+                            ownerid: 'xxxx',
+                            version: '1.0'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error loading user data:', error);
+                    // Set default values on error
+                    updateAppManageData({
+                        name: 'xxxx',
+                        ownerid: 'xxxx',
+                        version: '1.0'
+                    });
+                });
+        }
+
+        function loadUserCredentials(adminEmail) {
+            console.log('🔄 Loading user credentials for admin:', adminEmail);
+            fetch(`${window.API_BASE_URL}/api/get-user-credentials/${encodeURIComponent(adminEmail)}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('📊 User credentials response:', data);
+                    if (data.success && data.data) {
+                        // Clear existing table rows
+                        const tbody = document.getElementById('usersTableBody');
+                        tbody.innerHTML = '';
+                        
+                        // Add each user to the table
+                        Object.keys(data.data).forEach(username => {
+                            const userData = data.data[username];
+                            
+                            addUserToTable({
+                                name: userData.username,
+                                password: userData.password,
+                                email: userData.email || 'N/A',
+                                subscription: userData.subscription || 'default',
+                                expiryDate: userData.expiryDate,
+                                licence: userData.licence || 'non',
+                                createdAt: userData.createdAt,
+                                isBanned: userData.isBanned || false,
+                                hwid: userData.hwid || 'N/A',
+                                ip: userData.ip || 'N/A',
+                                lastLogin: userData.lastLogin || 'N/A'
+                            });
+                        });
+                        
+                        // If no users, show "No records found"
+                        if (Object.keys(data.data).length === 0) {
+                            const tbody = document.getElementById('usersTableBody');
+                            tbody.innerHTML = '<tr class="no-data"><td colspan="8">No records found</td></tr>';
+                        }
+                    } else {
+                        console.log('📊 No user credentials found for admin');
+                        // Show "No records found" if no users
+                        const tbody = document.getElementById('usersTableBody');
+                        tbody.innerHTML = '<tr class="no-data"><td colspan="8">No records found</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error loading user credentials:', error);
+                    // Show "No records found" on error
+                    const tbody = document.getElementById('usersTableBody');
+                    tbody.innerHTML = '<tr class="no-data"><td colspan="8">No records found</td></tr>';
+                });
+        }
+
+        // Load licenses from Firebase
+        function loadLicenses(adminEmail) {
+            console.log('🔄 Loading licenses for admin:', adminEmail);
+            fetch(`${window.API_BASE_URL}/api/get-licenses/${encodeURIComponent(adminEmail)}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('📊 Licenses response:', data);
+                    if (data.success && data.data) {
+                        // Clear existing table rows
+                        const tbody = document.getElementById('licensesTableBody');
+                        tbody.innerHTML = '';
+                        
+                        // Add each license to the table
+                        Object.keys(data.data).forEach(licenseKey => {
+                            const licenseData = data.data[licenseKey];
+                            
+                            addLicenseToTable({
+                                key: licenseData.licenseKey,
+                                charType: licenseData.characterType,
+                                expiry: calculateExpiry(licenseData.expiryUnit, licenseData.duration),
+                                status: licenseData.isUsed ? 'used' : 'not-used',
+                                createdAt: licenseData.createdAt,
+                                duration: licenseData.duration,
+                                expiryUnit: licenseData.expiryUnit,
+                                usedOn: licenseData.usedOn || 'N/A',
+                                usedAt: licenseData.usedAt || null,
+                                usedBy: licenseData.usedBy || 'N/A',
+                                generatedBy: licenseData.createdBy || 'Admin'
+                            });
+                        });
+                        
+                        // If no licenses, show "No records found"
+                        if (Object.keys(data.data).length === 0) {
+                            const tbody = document.getElementById('licensesTableBody');
+                            tbody.innerHTML = '<tr class="no-data"><td colspan="6">No records found</td></tr>';
+                        }
+                    } else {
+                        console.log('📊 No licenses found for admin');
+                        // Show "No records found" if no licenses
+                        const tbody = document.getElementById('licensesTableBody');
+                        tbody.innerHTML = '<tr class="no-data"><td colspan="6">No records found</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error loading licenses:', error);
+                    // Show "No records found" on error
+                    const tbody = document.getElementById('licensesTableBody');
+                    tbody.innerHTML = '<tr class="no-data"><td colspan="6">No records found</td></tr>';
+                });
+        }
+
+        function updateAppManageData(userData) {
+            console.log('🔄 Updating App Manage data:', userData);
+            
+            const nameElement = document.getElementById('apiName');
+            const ownerIdElement = document.getElementById('apiOwnerId');
+            const versionElement = document.getElementById('apiVersion');
+            const urlElement = document.getElementById('apiUrl');
+            
+            if (nameElement) nameElement.textContent = userData.name || 'xxxx';
+            if (ownerIdElement) ownerIdElement.textContent = userData.ownerid || 'xxxx';
+            if (versionElement) versionElement.textContent = userData.version || '1.0';
+            // Show copy-only API endpoint used by client apps; real requests use window.API_BASE_URL
+            if (urlElement) urlElement.textContent = 'https://emon-xiter-auth-system.onrender.com';
+            
+            console.log('✅ App Manage data updated:', {
+                name: nameElement?.textContent,
+                ownerid: ownerIdElement?.textContent,
+                version: versionElement?.textContent,
+                api: urlElement?.textContent
+            });
+        }
+
+        function copyCredentials() {
+            const code = document.querySelector('.code-block pre code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification('Credentials copied to clipboard!');
+            });
+        }
+
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'flex';
+            
+            // Set default expiry date to 30 days from now
+            const now = new Date();
+            now.setDate(now.getDate() + 30);
+            const defaultExpiry = now.toISOString().slice(0, 16); // Format for datetime-local input
+            document.getElementById('newExpiry').value = defaultExpiry;
+        }
+
+        function hideCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'none';
+            document.getElementById('createUserForm').reset();
+        }
+
+        function showCreateLicenseModal() {
+            document.getElementById('createLicenseModal').style.display = 'flex';
+        }
+
+        function hideCreateLicenseModal() {
+            document.getElementById('createLicenseModal').style.display = 'none';
+            document.getElementById('createLicenseForm').reset();
+        }
+
+        function showNotification(message, isSuccess = true, title = null) {
+            const notification = document.getElementById('notification');
+            const notificationContent = notification.querySelector('.notification-content');
+            const icon = notification.querySelector('.notification-icon');
+            const iconElement = icon.querySelector('i');
+            const titleElement = document.getElementById('notificationTitle');
+            const messageElement = document.getElementById('notificationMessage');
+            
+            // Set message and title
+            messageElement.textContent = message;
+            titleElement.textContent = title || (isSuccess ? 'Success' : 'Error');
+            
+            // Remove existing classes
+            notificationContent.classList.remove('success', 'error', 'warning', 'info');
+            icon.classList.remove('success', 'error', 'warning', 'info');
+            
+            if (isSuccess) {
+                iconElement.className = 'fas fa-check';
+                notificationContent.classList.add('success');
+                icon.classList.add('success');
+            } else {
+                iconElement.className = 'fas fa-times';
+                notificationContent.classList.add('error');
+                icon.classList.add('error');
+            }
+            
+            notification.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideNotification();
+            }, 5000);
+        }
+
+        function hideNotification() {
+            document.getElementById('notification').style.display = 'none';
+        }
+
+        function showConfirmation(message, callback) {
+            document.getElementById('confirmationMessage').textContent = message;
+            document.getElementById('confirmationModal').style.display = 'flex';
+            
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            confirmBtn.onclick = function() {
+                hideConfirmation();
+                callback();
+            };
+        }
+
+        function hideConfirmation() {
+            document.getElementById('confirmationModal').style.display = 'none';
+        }
+
+        function updateVersion() {
+            const newVersion = document.getElementById('appVersion').value;
+            document.getElementById('apiVersion').textContent = newVersion;
+            showNotification('Version updated successfully!');
+        }
+
+        function testLoadCredentials() {
+            console.log('🧪 Testing credentials load...');
+            const userEmail = document.getElementById('userEmail').textContent;
+            if (userEmail && userEmail !== 'user@example.com') {
+                console.log('🔄 Reloading user data for:', userEmail);
+                loadUserData(userEmail);
+                showNotification('Testing credentials load...');
+            } else {
+                console.log('❌ No user email found');
+                showNotification('No user logged in', false);
+            }
+        }
+
+        // Handle Create User
+        async function handleCreateUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const subscription = document.getElementById('newSubscription').value;
+            const expiry = document.getElementById('newExpiry').value;
+            const hwidLock = document.getElementById('newHwidLock').value;
+
+            if (!username || !password) {
+                showNotification('Username and password are required', false);
+                return;
+            }
+
+            if (password.length < 1) {
+                showNotification('Password cannot be empty', false);
+                return;
+            }
+
+            try {
+                console.log('🔄 Creating user:', username);
+                
+                // Get current admin email
+                const adminEmail = document.getElementById('userEmail').textContent;
+                
+                // Format the expiry date as "MM/DD/YYYY at HH:MM AM/PM"
+                const expiryDate = new Date(expiry);
+                const formattedExpiryDate = expiryDate.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                
+                console.log('📅 Date formatting:', {
+                    expiry: expiry,
+                    expiryDate: expiryDate,
+                    formattedExpiryDate: formattedExpiryDate
+                });
+                
+                // Store user credentials in Firebase under admin's folder
+                const userCredentials = {
+                    username: username,
+                    password: password,
+                    email: email || 'N/A', // Make email optional, default to 'N/A'
+                    subscription: subscription,
+                    expiryDate: formattedExpiryDate, // Only save formatted date string
+                    licence: "non",
+                    adminEmail: adminEmail,
+                    hwidLock: hwidLock
+                };
+
+                console.log('🚀 Sending request to:', `${window.API_BASE_URL}/api/add-user-credentials`);
+                console.log('📤 Request data:', userCredentials);
+
+                const response = await fetch(`${window.API_BASE_URL}/api/add-user-credentials`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userCredentials)
+                });
+
+                console.log('📥 Response status:', response.status);
+                console.log('📥 Response headers:', response.headers);
+
+                // Check if response is ok
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ HTTP Error:', response.status, errorText);
+                    showNotification(`HTTP Error ${response.status}: ${errorText}`, false);
+                    return;
+                }
+
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const errorText = await response.text();
+                    console.error('❌ Not JSON response:', errorText);
+                    showNotification('Server returned non-JSON response: ' + errorText.substring(0, 100), false);
+                    return;
+                }
+
+                const result = await response.json();
+                console.log('📥 Response data:', result);
+                
+                if (result.success) {
+                    showNotification('User created successfully!');
+                    
+                    // Add to table with the stored data
+                    const userData = {
+                        name: username,
+                        password: password,
+                        email: email,
+                        subscription: subscription,
+                        expiryDate: formattedExpiryDate,
+                        licence: "non",
+                        createdAt: new Date().toISOString(),
+                        isBanned: false,
+                        hwid: "N/A",
+                        ip: "N/A",
+                        lastLogin: "N/A"
+                    };
+                    
+                    addUserToTable(userData);
+                    hideCreateUserModal();
+                    
+                    console.log('✅ User credentials stored at:', result.path);
+                } else {
+                    showNotification('Failed to create user: ' + (result.error || result.message || 'Unknown error'), false);
+                }
+
+            } catch (error) {
+                console.error('❌ Create user error:', error);
+                showNotification('Error creating user: ' + error.message, false);
+            }
+        }
+
+        // Handle Create License
+        async function handleCreateLicense() {
+            const amount = parseInt(document.getElementById('licenseAmount').value);
+            const charType = document.getElementById('licenseCharType').value;
+            const expiryUnit = document.getElementById('licenseExpiryUnit').value;
+            const duration = parseInt(document.getElementById('licenseDuration').value);
+
+            if (amount < 1 || amount > 100) {
+                showNotification('Amount must be between 1 and 100', false);
+                return;
+            }
+
+            try {
+                console.log('🔄 Creating licenses:', amount);
+                
+                // Get current admin email
+                const adminEmail = document.getElementById('userEmail').textContent;
+                
+                const licenses = [];
+                for (let i = 0; i < amount; i++) {
+                    const licenseKey = generateLicenseKey();
+                    
+                    // Save each license to Firebase
+                    const licenseData = {
+                        licenseKey: licenseKey,
+                        characterType: charType,
+                        expiryUnit: expiryUnit,
+                        duration: duration,
+                        adminEmail: adminEmail
+                    };
+
+                    console.log('🚀 Creating license:', licenseKey);
+                    
+                    const response = await fetch(`${window.API_BASE_URL}/api/add-license`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(licenseData)
+                    });
+
+                    console.log('📥 License response status:', response.status);
+
+                    // Check if response is ok
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('❌ License HTTP Error:', response.status, errorText);
+                        showNotification(`License creation failed: HTTP ${response.status}`, false);
+                        continue;
+                    }
+
+                    // Check if response is JSON
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const errorText = await response.text();
+                        console.error('❌ License not JSON response:', errorText);
+                        showNotification('Server returned non-JSON response for license', false);
+                        continue;
+                    }
+
+                    const result = await response.json();
+                    console.log('📥 License response data:', result);
+                    
+                    if (result.success) {
+                        const license = {
+                            key: licenseKey,
+                            charType: charType,
+                            expiry: calculateExpiry(expiryUnit, duration),
+                            status: 'not-used',
+                            createdAt: new Date().toISOString(),
+                            duration: duration,
+                            expiryUnit: expiryUnit
+                        };
+                        licenses.push(license);
+                        addLicenseToTable(license);
+                    } else {
+                        console.error('Failed to create license:', result.error);
+                    }
+                }
+
+                showNotification(`${licenses.length} license(s) created successfully!`);
+                hideCreateLicenseModal();
+
+            } catch (error) {
+                console.error('❌ Create license error:', error);
+                showNotification('Error creating licenses: ' + error.message, false);
+            }
+        }
+
+        // Helper functions
+        function generateOwnerId() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        function generateRandomHWID() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 16; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+                if (i === 3 || i === 7 || i === 11) result += '-';
+            }
+            return result;
+        }
+
+        function generateRandomIP() {
+            return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        }
+
+        function generateLicenseKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = 'EMONXITER-';
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 6; j++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                if (i < 5) result += '-';
+            }
+            return result;
+        }
+
+        function calculateExpiry(unit, duration) {
+            const now = new Date();
+            switch (unit) {
+                case 'days':
+                    return new Date(now.getTime() + (duration * 24 * 60 * 60 * 1000));
+                case 'weeks':
+                    return new Date(now.getTime() + (duration * 7 * 24 * 60 * 60 * 1000));
+                case 'months':
+                    return new Date(now.getTime() + (duration * 30 * 24 * 60 * 60 * 1000));
+                case 'years':
+                    return new Date(now.getTime() + (duration * 365 * 24 * 60 * 60 * 1000));
+                default:
+                    return new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+            }
+        }
+
+        function addUserToTable(userData) {
+            const tbody = document.getElementById('usersTableBody');
+            const noDataRow = tbody.querySelector('.no-data');
+            
+            if (noDataRow) {
+                noDataRow.remove();
+            }
+
+            // Get HWID, IP, and Last Login from API data
+            const hwid = userData.hwid || 'N/A';
+            const ip = userData.ip || 'N/A';
+            const creationDate = userData.createdAt ? new Date(userData.createdAt).toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            }).replace(',', ' @') : 'N/A';
+            
+            // Get last login from API data
+            const lastLoginFormatted = userData.lastLogin || 'N/A';
+
+            const row = document.createElement('tr');
+            row.dataset.username = userData.name; // Add data attribute for easy access
+            row.innerHTML = `
+                <td>${userData.name}</td>
+                <td>${hwid}</td>
+                <td>${ip}</td>
+                <td>${creationDate}</td>
+                <td>${lastLoginFormatted}</td>
+                <td><span class="status-badge unbanned">Unbanned</span></td>
+                <td>
+                    <div class="actions-dropdown">
+                        <button class="dropdown-btn">Actions <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="deleteUser('${userData.name}')">Delete User</a>
+                            <a href="#" class="dropdown-item" onclick="resetUserHWID('${userData.name}')">Reset User HWID</a>
+                            <a href="#" class="dropdown-item" onclick="banUser('${userData.name}')">Ban User</a>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function addLicenseToTable(licenseData) {
+            const tbody = document.getElementById('licensesTableBody');
+            const noDataRow = tbody.querySelector('.no-data');
+            
+            if (noDataRow) {
+                noDataRow.remove();
+            }
+
+            // Format creation date
+            const creationDate = licenseData.createdAt ? new Date(licenseData.createdAt).toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            }).replace(',', ' @') : 'N/A';
+
+            // Populate from Firebase
+            const generatedBy = licenseData.generatedBy || licenseData.createdBy || 'Admin';
+            const duration = licenseData.duration ? `${licenseData.duration} ${licenseData.expiryUnit || 'days'}` : 'N/A';
+            const note = 'N/A';
+            let usedOn = licenseData.usedOn || 'N/A';
+            if ((!usedOn || usedOn === 'N/A') && licenseData.usedAt) {
+                try {
+                    usedOn = new Date(licenseData.usedAt).toLocaleString('en-US', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', hour12: true
+                    }).replace(',', ' @');
+                } catch (e) { usedOn = 'N/A'; }
+            }
+            const usedBy = licenseData.usedBy || 'N/A';
+            
+            console.log('License data for duration:', {
+                key: licenseData.key,
+                duration: licenseData.duration,
+                expiryUnit: licenseData.expiryUnit,
+                calculatedDuration: duration
+            });
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="license-key">${licenseData.key}</td>
+                <td>${creationDate}</td>
+                <td>${generatedBy}</td>
+                <td>${duration}</td>
+                <td>${note}</td>
+                <td>${usedOn}</td>
+                <td>${usedBy}</td>
+                <td><span class="status-badge ${licenseData.status === 'used' ? 'used' : 'not-used'}">${licenseData.status === 'used' ? 'Used' : 'Not Used'}</span></td>
+                <td>
+                    <div class="actions-dropdown">
+                        <button class="dropdown-btn">Actions <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-menu">
+                            <a href="#" class="dropdown-item" onclick="deleteLicense('${licenseData.key}')">Delete License</a>
+                            <a href="#" class="dropdown-item" onclick="resetLicense('${licenseData.key}')">Reset License</a>
+                            <a href="#" class="dropdown-item" onclick="banLicense('${licenseData.key}')">Ban License</a>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        // Action functions for dropdowns
+        async function deleteUser(username) {
+            console.log('🗑️ Delete user called for:', username);
+            
+            try {
+                const adminEmail = document.getElementById('userEmail').textContent;
+                console.log('👤 Admin email:', adminEmail);
+                console.log('🌐 API URL:', `${window.API_BASE_URL}/api/delete-user/${encodeURIComponent(adminEmail)}/${encodeURIComponent(username)}`);
+                
+                const response = await fetch(`${window.API_BASE_URL}/api/delete-user/${encodeURIComponent(adminEmail)}/${encodeURIComponent(username)}`, {
+                    method: 'DELETE'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ HTTP Error:', response.status, errorText);
+                    showNotification(`HTTP Error ${response.status}: ${errorText}`, false);
+                    return;
+                }
+                
+                const result = await response.json();
+                console.log('📊 Delete result:', result);
+                
+                if (result.success) {
+                    showNotification(`User "${username}" deleted successfully!`);
+                    // Reload the user credentials to update the table
+                    loadAllUsers(adminEmail);
+                } else {
+                    showNotification(`Failed to delete user: ${result.error}`, false);
+                }
+            } catch (error) {
+                console.error('❌ Error deleting user:', error);
+                showNotification(`Error deleting user: ${error.message}`, false);
+            }
+        }
+
+        function resetUserHWID(username) {
+            showConfirmation(`Are you sure you want to reset HWID for user "${username}"?`, () => {
+                showNotification(`HWID reset for user "${username}"!`);
+            });
+        }
+
+        function banUser(username) {
+            showConfirmation(`Are you sure you want to ban user "${username}"?`, () => {
+                showNotification(`User "${username}" banned!`);
+            });
+        }
+
+        async function deleteLicense(licenseKey) {
+            showConfirmation(`Are you sure you want to delete license "${licenseKey}"?`, async () => {
+                try {
+                    const adminEmail = document.getElementById('userEmail').textContent;
+                    
+                    const response = await fetch(`${window.API_BASE_URL}/api/delete-license/${encodeURIComponent(adminEmail)}/${encodeURIComponent(licenseKey)}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification(`License "${licenseKey}" deleted successfully!`);
+                        // Reload the licenses to update the table
+                        loadLicenses(adminEmail);
+                    } else {
+                        showNotification(`Failed to delete license: ${result.error}`, false);
+                    }
+                } catch (error) {
+                    console.error('Error deleting license:', error);
+                    showNotification(`Error deleting license: ${error.message}`, false);
+                }
+            });
+        }
+
+        function resetLicense(licenseKey) {
+            showConfirmation(`Are you sure you want to reset license "${licenseKey}"?`, () => {
+                showNotification(`License "${licenseKey}" reset!`);
+            });
+        }
+
+        function banLicense(licenseKey) {
+            showConfirmation(`Are you sure you want to ban license "${licenseKey}"?`, () => {
+                showNotification(`License "${licenseKey}" banned!`);
+            });
+        }
+
+        async function deleteAllLicenses() {
+            showConfirmation('Are you sure you want to delete ALL licenses?', async () => {
+                try {
+                    const adminEmail = document.getElementById('userEmail').textContent;
+                    
+                    const response = await fetch(`${window.API_BASE_URL}/api/delete-all-licenses/${encodeURIComponent(adminEmail)}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification('All licenses deleted successfully!');
+                        // Reload the licenses to update the table
+                        loadLicenses(adminEmail);
+                    } else {
+                        showNotification(`Failed to delete all licenses: ${result.error}`, false);
+                    }
+                } catch (error) {
+                    console.error('Error deleting all licenses:', error);
+                    showNotification(`Error deleting all licenses: ${error.message}`, false);
+                }
+            });
+        }
+
+        async function deleteUsedLicenses() {
+            showConfirmation('Are you sure you want to delete all USED licenses?', async () => {
+                try {
+                    const adminEmail = document.getElementById('userEmail').textContent;
+                    
+                    const response = await fetch(`${window.API_BASE_URL}/api/delete-used-licenses/${encodeURIComponent(adminEmail)}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification(`${result.deletedCount} used licenses deleted successfully!`);
+                        // Reload the licenses to update the table
+                        loadLicenses(adminEmail);
+                    } else {
+                        showNotification(`Failed to delete used licenses: ${result.error}`, false);
+                    }
+                } catch (error) {
+                    console.error('Error deleting used licenses:', error);
+                    showNotification(`Error deleting used licenses: ${error.message}`, false);
+                }
+            });
+        }
+
+        async function deleteUnusedLicenses() {
+            showConfirmation('Are you sure you want to delete all UNUSED licenses?', async () => {
+                try {
+                    const adminEmail = document.getElementById('userEmail').textContent;
+                    
+                    const response = await fetch(`${window.API_BASE_URL}/api/delete-unused-licenses/${encodeURIComponent(adminEmail)}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification(`${result.deletedCount} unused licenses deleted successfully!`);
+                        // Reload the licenses to update the table
+                        loadLicenses(adminEmail);
+                    } else {
+                        showNotification(`Failed to delete unused licenses: ${result.error}`, false);
+                    }
+                } catch (error) {
+                    console.error('Error deleting unused licenses:', error);
+                    showNotification(`Error deleting unused licenses: ${error.message}`, false);
+                }
+            });
+        }
+
+        // Update progress bar
+        function updateProgress(percentage, text) {
+            const progressFill = document.querySelector('.progress-fill');
+            const progressText = document.querySelector('.progress-text');
+            
+            if (progressFill) {
+                progressFill.style.width = percentage + '%';
+            }
+            
+            if (progressText) {
+                progressText.textContent = text;
+            }
+        }
+
+        // Load credentials from Firebase
+        async function loadCredentialsFromFirebase() {
+            try {
+                console.log('🔄 Loading credentials from Firebase...');
+                updateProgress(10, 'Connecting to Firebase...');
+                
+                // Check if user is authenticated
+                const user = window.auth.currentUser;
+                if (!user) {
+                    console.log('❌ No authenticated user found');
+                    hideLoadingScreen();
+                    return;
+                }
+                
+                const adminEmail = user.email;
+                console.log('📧 Loading credentials for admin:', adminEmail);
+                updateProgress(30, 'Loading user credentials...');
+                
+                // Load user data and credentials (like Test Load button)
+                await new Promise((resolve, reject) => {
+                    fetch(`${window.API_BASE_URL}/api/get-user/${encodeURIComponent(adminEmail)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('📊 User data response:', data);
+                            updateProgress(60, 'Processing credentials...');
+                            
+                            if (data.success) {
+                                updateAppManageData(data.data);
+                                resolve(data);
+                            } else {
+                                console.error('❌ Failed to load user data:', data.error);
+                                // Set default values if user not found
+                                updateAppManageData({
+                                    name: 'xxxx',
+                                    ownerid: 'xxxx',
+                                    version: '1.0'
+                                });
+                                resolve(data);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('❌ Error loading user data:', error);
+                            // Set default values on error
+                            updateAppManageData({
+                                name: 'xxxx',
+                                ownerid: 'xxxx',
+                                version: '1.0'
+                            });
+                            reject(error);
+                        });
+                });
+                
+                updateProgress(80, 'Loading application version...');
+                
+                // Load current version
+                await loadCurrentVersion();
+                
+                updateProgress(100, 'Loading complete!');
+                
+                console.log('✅ Credentials loaded successfully');
+                
+                // Hide loading screen and show dashboard
+                setTimeout(() => {
+                    hideLoadingScreen();
+                    showDashboard();
+                }, 500); // Small delay for smooth transition
+                
+            } catch (error) {
+                console.error('❌ Error loading credentials:', error);
+                updateProgress(0, 'Loading failed');
+                hideLoadingScreen();
+            }
+        }
+
+        // Hide loading screen
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.classList.add('hidden');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        // Show loading screen
+        function showLoadingScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'flex';
+                loadingScreen.classList.remove('hidden');
+            }
+        }
+
+        // Load settings
+        async function loadSettings() {
+            try {
+                const adminEmail = document.getElementById('userEmail').textContent;
+                
+                console.log('📥 Loading settings for:', adminEmail);
+                
+                const response = await fetch(`${window.API_BASE_URL}/api/get-settings/${encodeURIComponent(adminEmail)}`);
+                const result = await response.json();
+                
+                if (result.success && result.settings) {
+                    const hwidLockSelect = document.getElementById('hwidLock');
+                    const vpnBlockSelect = document.getElementById('vpnBlock');
+                    
+                    hwidLockSelect.value = result.settings.hwidlock === 'true' ? 'enabled' : 'disabled';
+                    vpnBlockSelect.value = result.settings.vpnblock === 'true' ? 'enabled' : 'disabled';
+                    
+                    console.log('✅ Settings loaded:', result.settings);
+                } else {
+                    console.log('📊 No settings found, using defaults');
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Update HWID Lock setting
+        async function updateHwidLock(value) {
+            try {
+                const adminEmail = document.getElementById('userEmail').textContent;
+                
+                console.log('🔄 Updating HWID Lock to:', value);
+                
+                const response = await fetch(`${window.API_BASE_URL}/api/update-settings/${encodeURIComponent(adminEmail)}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        hwidLock: value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(`HWID Lock ${value}!`, true);
+                    console.log('✅ HWID Lock updated:', result);
+                } else {
+                    showNotification(result.message || 'Failed to update HWID Lock', false);
+                }
+            } catch (error) {
+                console.error('Error updating HWID Lock:', error);
+                showNotification('Error updating HWID Lock', false);
+            }
+        }
+
+        // Update VPN Block setting
+        async function updateVpnBlock(value) {
+            try {
+                const adminEmail = document.getElementById('userEmail').textContent;
+                
+                console.log('🔄 Updating VPN Block to:', value);
+                
+                const response = await fetch(`${window.API_BASE_URL}/api/update-settings/${encodeURIComponent(adminEmail)}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        vpnBlock: value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(`VPN Block ${value}!`, true);
+                    console.log('✅ VPN Block updated:', result);
+                } else {
+                    showNotification(result.message || 'Failed to update VPN Block', false);
+                }
+            } catch (error) {
+                console.error('Error updating VPN Block:', error);
+                showNotification('Error updating VPN Block', false);
+            }
+        }
+
+        // Load current application version
+        async function loadCurrentVersion() {
+            try {
+                const adminEmail = document.getElementById('userEmail').textContent;
+                
+                console.log('📥 Loading current version for:', adminEmail);
+                
+                const response = await fetch(`${window.API_BASE_URL}/api/get-version/${encodeURIComponent(adminEmail)}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const versionInput = document.getElementById('appVersion');
+                    versionInput.value = result.version;
+                    console.log('✅ Version loaded:', result.version);
+                } else {
+                    console.error('❌ Failed to load version:', result.message);
+                    // Set default version if loading fails
+                    document.getElementById('appVersion').value = '1.0';
+                }
+            } catch (error) {
+                console.error('Error loading version:', error);
+                // Set default version if loading fails
+                document.getElementById('appVersion').value = '1.0';
+            }
+        }
+
+        // Update application version
+        async function updateVersion() {
+            try {
+                const newVersion = document.getElementById('appVersion').value.trim();
+                const adminEmail = document.getElementById('userEmail').textContent;
+                
+                if (!newVersion) {
+                    showNotification('Please enter a version number', false);
+                    return;
+                }
+                
+                console.log('🔄 Updating version to:', newVersion);
+                
+                const response = await fetch(`${window.API_BASE_URL}/api/update-version/${encodeURIComponent(adminEmail)}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        version: newVersion
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(`Version updated to ${newVersion}`, true);
+                    console.log('✅ Version updated successfully');
+                } else {
+                    showNotification(result.message || 'Failed to update version', false);
+                }
+            } catch (error) {
+                console.error('Error updating version:', error);
+                showNotification('Error updating version', false);
+            }
+        }
+
+        // Switch language tabs
+        function switchLanguageTab(language) {
+            // Hide all credential cards
+            document.getElementById('csharp-credentials').style.display = 'none';
+            document.getElementById('cpp-credentials').style.display = 'none';
+            document.getElementById('python-credentials').style.display = 'none';
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.language-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected credential card
+            document.getElementById(language + '-credentials').style.display = 'block';
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Logout function
+        function logout() {
+            console.log('🚪 Logout button clicked');
+            
+            // Sign out from Firebase using the imported auth
+            signOut(auth).then(() => {
+                console.log('✅ Firebase sign out successful');
+                
+                // Clear any stored data
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                
+                // Hide dashboard and show login form
+                const dashboardView = document.getElementById('dashboardView');
+                const box = document.querySelector('.box');
+                
+                if (dashboardView) dashboardView.style.display = 'none';
+                if (box) box.style.display = 'block';
+                
+                // Reset forms
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                if (loginForm) loginForm.reset();
+                if (registerForm) registerForm.reset();
+                
+                console.log('✅ Logout completed successfully');
+                
+            }).catch((error) => {
+                console.error('❌ Firebase sign out error:', error);
+                
+                // Even if there's an error, clear data and show login
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                
+                const dashboardView = document.getElementById('dashboardView');
+                const box = document.querySelector('.box');
+                
+                if (dashboardView) dashboardView.style.display = 'none';
+                if (box) box.style.display = 'block';
+            });
+        }
+
+        // Actions popup system
+        let currentUser = null;
+        let currentActionType = 'user';
+        
+        function showActionsPopup(username, userType = 'user') {
+            console.log('🎯 showActionsPopup called with username:', username, 'type:', typeof username);
+            currentUser = username;
+            currentActionType = userType;
+            console.log('🎯 currentUser set to:', currentUser, 'type:', typeof currentUser, 'actionType:', currentActionType);
+            const popup = document.getElementById('actionsPopup');
+            const title = document.getElementById('actionsPopupTitle');
+            const info = document.getElementById('actionsPopupInfo');
+            const deleteBtn = document.getElementById('popupDeleteUser');
+            const resetBtn = document.getElementById('popupResetHWID');
+            const banBtn = document.getElementById('popupBanUser');
+            
+            if (userType === 'user') {
+                title.textContent = 'User Actions';
+                info.textContent = `Select an action for user "${username}":`;
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete User';
+                resetBtn.innerHTML = '<i class="fas fa-refresh"></i> Reset HWID';
+                banBtn.innerHTML = '<i class="fas fa-ban"></i> Ban User';
+            } else {
+                title.textContent = 'License Actions';
+                info.textContent = `Select an action for license "${username}":`;
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete License';
+                resetBtn.innerHTML = '<i class="fas fa-refresh"></i> Reset License';
+                banBtn.innerHTML = '<i class="fas fa-ban"></i> Ban License';
+            }
+            
+            popup.style.display = 'flex';
+        }
+        
+        function hideActionsPopup() {
+            const popup = document.getElementById('actionsPopup');
+            popup.style.display = 'none';
+            currentUser = null;
+        }
+        
+        // Add click event to all Actions buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.dropdown-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get the username from the table row
+                    const row = e.target.closest('tr');
+                    console.log('🔍 Table row found:', row);
+                    console.log('🔍 Row HTML:', row.innerHTML);
+                    console.log('🔍 Row text content:', row.textContent);
+                    
+                    // Try different ways to get the username
+                    let username = null;
+                    
+                    // Method 1: First cell
+                    const firstCell = row.querySelector('td:first-child');
+                    if (firstCell) {
+                        username = firstCell.textContent.trim();
+                        console.log('👤 Username from first cell:', username);
+                        console.log('🔍 First cell HTML:', firstCell.innerHTML);
+                    }
+                    
+                    // Method 2: Look for username in data attributes
+                    if (!username && row.dataset.username) {
+                        username = row.dataset.username;
+                        console.log('👤 Username from data attribute:', username);
+                    }
+                    
+                    // Method 3: Look in all cells
+                    if (!username) {
+                        const cells = row.querySelectorAll('td');
+                        for (let cell of cells) {
+                            const text = cell.textContent.trim();
+                            if (text && text !== 'N/A' && text !== 'Unbanned' && !text.includes('@') && !text.includes('/')) {
+                                username = text;
+                                console.log('👤 Username from cell search:', username);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    console.log('🎯 Final username extracted:', username);
+                    
+                    if (!username) {
+                        console.error('❌ Could not find username in row');
+                        showNotification('Could not find username', false);
+                        return;
+                    }
+                    
+                    // Determine if it's user or license table
+                    const table = e.target.closest('table');
+                    const isUserTable = table && (table.id.includes('users') || table.classList.contains('users-table'));
+                    
+                    console.log('📊 Table type:', isUserTable ? 'user' : 'license');
+                    showActionsPopup(username, isUserTable ? 'user' : 'license');
+                }
+            });
+            
+            // Close popup when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'actionsPopup') {
+                    hideActionsPopup();
+                }
+            });
+            
+            // Setup popup button actions
+            document.getElementById('popupDeleteUser').addEventListener('click', function() {
+                console.log('🗑️ Delete button clicked, currentUser:', currentUser, 'type:', currentActionType);
+                
+                if (currentUser && currentUser !== 'null' && currentUser !== null) {
+                    if (currentActionType === 'license') {
+                        console.log('🚀 Calling deleteLicense with:', currentUser);
+                        deleteLicense(currentUser);
+                    } else {
+                        console.log('🚀 Calling deleteUser with:', currentUser);
+                        deleteUser(currentUser);
+                    }
+                    hideActionsPopup();
+                } else {
+                    console.error('❌ No currentUser set or currentUser is null');
+                    showNotification('No item selected', false);
+                }
+            });
+            
+            document.getElementById('popupResetHWID').addEventListener('click', function() {
+                if (currentUser) {
+                    if (currentActionType === 'license') {
+                        resetLicense(currentUser);
+                    } else {
+                        resetUserHWID(currentUser);
+                    }
+                    hideActionsPopup();
+                }
+            });
+            
+            document.getElementById('popupBanUser').addEventListener('click', function() {
+                if (currentUser) {
+                    if (currentActionType === 'license') {
+                        banLicense(currentUser);
+                    } else {
+                        banUser(currentUser);
+                    }
+                    hideActionsPopup();
+                }
+            });
+        });
+
+        // Make functions global
+        window.switchTab = switchTab;
+        window.switchLanguageTab = switchLanguageTab;
+        window.copyCredentials = copyCredentials;
+        window.logout = logout;
+        window.showCreateUserModal = showCreateUserModal;
+        window.hideCreateUserModal = hideCreateUserModal;
+        window.showCreateLicenseModal = showCreateLicenseModal;
+        window.hideCreateLicenseModal = hideCreateLicenseModal;
+        window.showNotification = showNotification;
+        window.hideNotification = hideNotification;
+        window.showConfirmation = showConfirmation;
+        window.hideConfirmation = hideConfirmation;
+        window.updateVersion = updateVersion;
+        window.testLoadCredentials = testLoadCredentials;
+        window.handleCreateUser = handleCreateUser;
+        window.handleCreateLicense = handleCreateLicense;
+        window.deleteUser = deleteUser;
+        window.resetUserHWID = resetUserHWID;
+        window.banUser = banUser;
+        window.deleteLicense = deleteLicense;
+        window.resetLicense = resetLicense;
+        window.banLicense = banLicense;
+        window.deleteAllLicenses = deleteAllLicenses;
+        window.deleteUsedLicenses = deleteUsedLicenses;
+        window.deleteUnusedLicenses = deleteUnusedLicenses;
+        window.loadLicenses = loadLicenses;
+        window.updateVersion = updateVersion;
+        window.loadCurrentVersion = loadCurrentVersion;
+        window.loadSettings = loadSettings;
+        window.updateHwidLock = updateHwidLock;
+        window.updateVpnBlock = updateVpnBlock;
+        window.loadCredentialsFromFirebase = loadCredentialsFromFirebase;
+        window.hideLoadingScreen = hideLoadingScreen;
+        window.showLoadingScreen = showLoadingScreen;
+        window.updateProgress = updateProgress;
+        
+        // Pagination and table management
+        let currentPage = 1;
+        let recordsPerPage = 10;
+        let totalRecords = 0;
+        let allUsers = [];
+        
+        // License pagination
+        let currentLicensePage = 1;
+        let licenseRecordsPerPage = 10;
+        let totalLicenseRecords = 0;
+        let allLicenses = [];
+        
+        function updateRecordCount() {
+            const startRecord = totalRecords === 0 ? 0 : ((currentPage - 1) * recordsPerPage) + 1;
+            const endRecord = Math.min(currentPage * recordsPerPage, totalRecords);
+            document.getElementById('userRecordCount').textContent = `Showing ${startRecord} to ${endRecord} of ${totalRecords} records`;
+        }
+        
+        function updatePagination() {
+            const totalPages = Math.ceil(totalRecords / recordsPerPage);
+            const pageNumbers = document.getElementById('pageNumbers');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            
+            // Clear existing page numbers
+            pageNumbers.innerHTML = '';
+            
+            // Previous button
+            prevBtn.disabled = currentPage === 1;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-number ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => goToPage(i);
+                pageNumbers.appendChild(pageBtn);
+            }
+            
+            // Next button
+            nextBtn.disabled = currentPage === totalPages;
+        }
+        
+        function goToPage(page) {
+            currentPage = page;
+            displayUsers();
+            updatePagination();
+            updateRecordCount();
+        }
+        
+        function displayUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            
+            if (allUsers.length === 0) {
+                tbody.innerHTML = '<tr class="no-data"><td colspan="8">No records found</td></tr>';
+                return;
+            }
+            
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = startIndex + recordsPerPage;
+            const usersToShow = allUsers.slice(startIndex, endIndex);
+            
+            usersToShow.forEach(userData => {
+                addUserToTable(userData);
+            });
+        }
+        
+        function loadAllUsers(adminEmail) {
+            console.log('🔄 Loading all users for admin:', adminEmail);
+            console.log('🌐 API URL:', `${window.API_BASE_URL}/api/get-user-credentials/${encodeURIComponent(adminEmail)}`);
+            
+            fetch(`${window.API_BASE_URL}/api/get-user-credentials/${encodeURIComponent(adminEmail)}`)
+                .then(response => {
+                    console.log('📡 Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 Raw API response:', data);
+                    
+                    if (data.success && data.data) {
+                        console.log('✅ Users data found:', data.data);
+                        allUsers = Object.keys(data.data).map(username => {
+                            const userData = data.data[username];
+                            console.log('👤 Processing user:', username, userData);
+                            return {
+                                name: userData.username || username,
+                                password: userData.password,
+                                email: userData.email || 'N/A',
+                                subscription: userData.subscription || 'default',
+                                expiryDate: userData.expiryDate,
+                                licence: userData.licence || 'non',
+                                createdAt: userData.createdAt,
+                                isBanned: userData.isBanned || false,
+                                hwid: userData.hwid || 'N/A',
+                                ip: userData.ip || 'N/A',
+                                lastLogin: userData.lastLogin || 'N/A'
+                            };
+                        });
+                        console.log('📋 Processed users array:', allUsers);
+                    } else {
+                        console.log('❌ No users data found or API error:', data);
+                        allUsers = [];
+                    }
+                    
+                    totalRecords = allUsers.length;
+                    currentPage = 1;
+                    console.log('📊 Total records:', totalRecords);
+                    displayUsers();
+                    updatePagination();
+                    updateRecordCount();
+                })
+                .catch(error => {
+                    console.error('❌ Error loading users:', error);
+                    allUsers = [];
+                    totalRecords = 0;
+                    displayUsers();
+                    updatePagination();
+                    updateRecordCount();
+                });
+        }
+        
+        // License pagination functions
+        function updateLicenseRecordCount() {
+            const startRecord = totalLicenseRecords === 0 ? 0 : ((currentLicensePage - 1) * licenseRecordsPerPage) + 1;
+            const endRecord = Math.min(currentLicensePage * licenseRecordsPerPage, totalLicenseRecords);
+            document.getElementById('licenseRecordCount').textContent = `Showing ${startRecord} to ${endRecord} of ${totalLicenseRecords} records`;
+        }
+        
+        function updateLicensePagination() {
+            const totalPages = Math.ceil(totalLicenseRecords / licenseRecordsPerPage);
+            const pageNumbers = document.getElementById('licensePageNumbers');
+            const prevBtn = document.getElementById('prevLicensePage');
+            const nextBtn = document.getElementById('nextLicensePage');
+            
+            // Clear existing page numbers
+            pageNumbers.innerHTML = '';
+            
+            // Previous button
+            prevBtn.disabled = currentLicensePage === 1;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-number ${i === currentLicensePage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => goToLicensePage(i);
+                pageNumbers.appendChild(pageBtn);
+            }
+            
+            // Next button
+            nextBtn.disabled = currentLicensePage === totalPages;
+        }
+        
+        function goToLicensePage(page) {
+            currentLicensePage = page;
+            displayLicenses();
+            updateLicensePagination();
+            updateLicenseRecordCount();
+        }
+        
+        function displayLicenses() {
+            const tbody = document.getElementById('licensesTableBody');
+            tbody.innerHTML = '';
+            
+            if (allLicenses.length === 0) {
+                tbody.innerHTML = '<tr class="no-data"><td colspan="10">No records found</td></tr>';
+                return;
+            }
+            
+            const startIndex = (currentLicensePage - 1) * licenseRecordsPerPage;
+            const endIndex = startIndex + licenseRecordsPerPage;
+            const licensesToShow = allLicenses.slice(startIndex, endIndex);
+            
+            licensesToShow.forEach(licenseData => {
+                addLicenseToTable(licenseData);
+            });
+        }
+        
+        function loadAllLicenses(adminEmail) {
+            fetch(`${window.API_BASE_URL}/api/get-licenses/${encodeURIComponent(adminEmail)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        allLicenses = Object.keys(data.data).map(licenseKey => {
+                            const licenseData = data.data[licenseKey];
+                            console.log('Processing license data:', licenseData);
+                            return {
+                                key: licenseData.licenseKey,
+                                charType: licenseData.characterType,
+                                expiry: calculateExpiry(licenseData.expiryUnit, licenseData.duration),
+                                status: licenseData.isUsed ? 'used' : 'not-used',
+                                createdAt: licenseData.createdAt,
+                                duration: licenseData.duration,
+                                expiryUnit: licenseData.expiryUnit
+                            };
+                        });
+                    } else {
+                        allLicenses = [];
+                    }
+                    
+                    totalLicenseRecords = allLicenses.length;
+                    currentLicensePage = 1;
+                    displayLicenses();
+                    updateLicensePagination();
+                    updateLicenseRecordCount();
+                })
+                .catch(error => {
+                    console.error('Error loading licenses:', error);
+                    allLicenses = [];
+                    totalLicenseRecords = 0;
+                    displayLicenses();
+                    updateLicensePagination();
+                    updateLicenseRecordCount();
+                });
+        }
+    </script>
+</body>
+</html>
